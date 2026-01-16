@@ -33,89 +33,105 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAdd }) => {
   };
 
   const handleAutoCategorize = async () => {
-    if (!description || description.length < 3) return;
+    if (!description || description.trim().length < 3) return;
     setIsCategorizing(true);
-    const suggested = await categorizeTransaction(description);
-    if (suggested) {
-      setCategory(suggested as Category);
+    try {
+      const suggested = await categorizeTransaction(description);
+      if (suggested && CATEGORIES.some(c => c.name === suggested)) {
+        setCategory(suggested as Category);
+      }
+    } finally {
+      setIsCategorizing(false);
     }
-    setIsCategorizing(false);
   };
 
   return (
-    <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-      <h2 className="text-xl font-extrabold mb-8 text-slate-800">Add Entry</h2>
+    <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[32px] shadow-sm border border-slate-100 ring-1 ring-slate-100">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">New Entry</h2>
+        <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+          <Icons.Plus />
+        </div>
+      </div>
       
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex gap-2 p-1.5 bg-slate-100 rounded-2xl">
+        <div className="flex gap-2 p-1.5 bg-slate-100/50 rounded-2xl">
           <button
             type="button"
             onClick={() => setType(TransactionType.DEBIT)}
-            className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${
-              type === TransactionType.DEBIT ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 ${
+              type === TransactionType.DEBIT 
+                ? 'bg-white text-rose-600 shadow-md shadow-rose-100' 
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            Spends
+            Spending
           </button>
           <button
             type="button"
             onClick={() => setType(TransactionType.CREDIT)}
-            className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${
-              type === TransactionType.CREDIT ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 ${
+              type === TransactionType.CREDIT 
+                ? 'bg-white text-emerald-600 shadow-md shadow-emerald-100' 
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
             Income
           </button>
         </div>
 
-        <div className="space-y-1">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">What for?</label>
+        <div className="space-y-2">
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Description</label>
           <div className="relative">
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               onBlur={handleAutoCategorize}
-              placeholder="e.g. Jio Recharge, Grocery"
-              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all text-slate-800 placeholder-slate-300 font-medium"
+              placeholder="Zomato order, Rent, etc."
+              className="w-full px-5 py-4 bg-slate-50/50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500/20 transition-all text-sm font-bold placeholder-slate-300"
             />
             {isCategorizing && (
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] text-indigo-500 font-bold animate-pulse uppercase">
-                AI Magic...
-              </span>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <div className="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-[9px] text-indigo-500 font-black uppercase tracking-widest">AI Categorizing</span>
+              </div>
             )}
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6">
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">How much? (₹)</label>
-            <input
-              type="number"
-              step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all text-slate-800 font-bold text-lg"
-            />
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Amount (₹)</label>
+            <div className="relative">
+              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">₹</span>
+              <input
+                type="number"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                className="w-full pl-10 pr-5 py-4 bg-slate-50/50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500/20 transition-all text-slate-900 font-black text-xl"
+              />
+            </div>
           </div>
           
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Category</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Category</label>
             <div className="relative">
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as Category)}
-                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all appearance-none text-slate-700 font-medium"
+                className="w-full px-5 py-4 bg-slate-50/50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500/20 transition-all appearance-none text-slate-700 font-bold text-sm"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat.name} value={cat.name}>
-                    {cat.icon} {cat.name}
+                    {cat.icon} &nbsp; {cat.name}
                   </option>
                 ))}
               </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
               </div>
             </div>
           </div>
@@ -124,9 +140,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onAdd }) => {
         <button
           type="submit"
           disabled={!amount || !description}
-          className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 transition-all disabled:opacity-30 disabled:shadow-none active:scale-[0.98] uppercase tracking-widest text-xs"
+          className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-30 disabled:hover:scale-100 disabled:shadow-none uppercase tracking-[0.2em] text-[10px]"
         >
-          Confirm {type === TransactionType.DEBIT ? 'Spend' : 'Income'}
+          Confirm Entry
         </button>
       </form>
     </div>

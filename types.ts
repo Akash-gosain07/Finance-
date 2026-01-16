@@ -5,14 +5,15 @@ export enum TransactionType {
 }
 
 export type Category = 
-  | 'Food & Drinks' 
+  | 'Kirana & Groceries' 
+  | 'Rent & EMI' 
+  | 'Fuel & Transport' 
+  | 'Dining Out' 
   | 'Shopping' 
-  | 'Transport' 
-  | 'Housing' 
-  | 'Entertainment' 
-  | 'Income' 
-  | 'Health' 
-  | 'Investment'
+  | 'Salary/Income' 
+  | 'Bills & Recharge' 
+  | 'UPI/Transfers' 
+  | 'Investments' 
   | 'Other';
 
 export interface Transaction {
